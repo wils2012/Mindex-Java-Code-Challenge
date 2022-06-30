@@ -29,12 +29,16 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Employee read(String id) {
-        LOG.debug("Creating employee with id [{}]", id);
+        LOG.debug("Reading employee with id [{}]", id);
 
         Employee employee = employeeRepository.findByEmployeeId(id);
-
-        if (employee == null) {
-            throw new RuntimeException("Invalid employeeId: " + id);
+        
+        //When importing employee, recursively fill employee details on direct reports by calling "read"
+        // on direct report 'employeeId's
+        if(employee.getDirectReports() != null){
+            for(int i = 0; i < employee.getDirectReports().size(); i++){
+                employee.getDirectReports().set(i, read(employee.getDirectReports().get(i).getEmployeeId()));
+            }
         }
 
         return employee;
